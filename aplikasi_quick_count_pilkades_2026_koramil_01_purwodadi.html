@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Count Pilkades 2026 - Koramil 01/Purwodadi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            tni: { primary: '#2C3E26', dark: '#1E2B1A', gold: '#B59410', light: '#F4F6F4', accent: '#3F5239' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; }
+    @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-slow 1.5s infinite; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Header Komando -->
+  <header class="bg-tni-primary text-white border-b-4 border-tni-gold shadow-lg sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-tni-dark border-2 border-tni-gold flex items-center justify-center shadow-inner shrink-0">
+          <i class="fa-solid fa-shield-halved text-tni-gold text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-sm sm:text-lg tracking-wide leading-tight">
+              QUICK COUNT PILKADES GEL. I 2026
+            </h1>
+            <span id="badgeServerStatus" class="inline-flex items-center gap-1.5 bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              <span class="w-2 h-2 rounded-full bg-white pulse-dot"></span> Server Cloud Aktif
+            </span>
+          </div>
+          <p class="text-xs sm:text-sm text-amber-300 font-semibold tracking-wide">
+            KORAMIL 01/PURWODADI &mdash; KODIM 0717/GROBOGAN
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="bukaModalPin()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-key"></i> PIN Koramil
+        </button>
+        <button onclick="bagikanLink()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-share-nodes"></i> Bagikan Link
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigasi Tab Menu -->
+  <nav class="bg-white shadow-sm border-b sticky top-[68px] sm:top-[76px] z-20">
+    <div class="max-w-6xl mx-auto px-4 flex overflow-x-auto">
+      <button onclick="pindahTab('input')" id="nav-input" class="px-5 py-3 text-xs sm:text-sm font-bold border-b-2 border-tni-primary text-tni-primary flex items-center gap-2 shrink-0">
+        <i class="fa-solid fa-pen-to-square"></i> Input Suara TPS
+      </button>
+      <button onclick="pindahTab('dashboard')" id="nav-dashboard" class="px-5 py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 shrink-0">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard Posko Live
+      </button>
+      <button onclick="pindahTab('babinsa')" id="nav-babinsa" class="px-5 py-3 text-xs sm:text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 shrink-0">
+        <i class="fa-solid fa-users-rectangle"></i> Data Personil Koramil
+      </button>
+    </div>
+  </nav>
+
+  <!-- Konten Utama -->
+  <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+    <!-- TAB 1: FORM INPUT TPS -->
+    <section id="tab-content-input" class="space-y-6">
+      <div class="bg-white rounded-2xl shadow-md p-5 sm:p-8 max-w-2xl mx-auto border border-slate-200">
+        <div class="border-b pb-4 mb-5 flex justify-between items-center">
+          <div>
+            <h2 class="font-extrabold text-base sm:text-lg text-slate-800">Form Laporan Hasil TPS</h2>
+            <p class="text-xs text-slate-500">Silakan isi data perolehan suara resmi dari TPS wilayah binaan.</p>
+          </div>
+          <span class="bg-tni-light text-tni-primary font-bold text-xs px-3 py-1 rounded-full border border-tni-primary/20">Gelombang I 2026</span>
+        </div>
+
+        <form id="formSuara" onsubmit="kirimLaporanSuara(event)" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Pilih Wilayah Desa</label>
+              <select id="inputDesa" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-tni-primary focus:outline-none" required onchange="pilihDesaUpdateBabinsa()">
+                <option value="">-- Pilih Desa --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Nomor TPS</label>
+              <input type="number" id="inputTps" min="1" max="99" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-tni-primary focus:outline-none" placeholder="Contoh: 1" required>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Babinsa Penanggung Jawab Wilayah</label>
+            <select id="inputPetugas" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-semibold focus:ring-2 focus:ring-tni-primary focus:outline-none" required>
+              <option value="">-- Pilih Petugas / Babinsa --</option>
+            </select>
+            <p class="text-[11px] text-slate-500 mt-1">Otomatis terisi sesuai wilayah desa, atau dapat dipilih dari daftar personil.</p>
+          </div>
+
+          <div class="border-t pt-4">
+            <label class="block text-sm font-bold text-tni-primary mb-3"><i class="fa-solid fa-list-ol mr-1"></i> Perolehan Suara Calon Kepala Desa:</label>
+            <div id="containerCalonInput" class="space-y-2.5">
+              <div class="text-xs text-slate-400 italic">Pilih desa terlebih dahulu untuk menampilkan daftar bakal calon.</div>
+            </div>
+          </div>
+
+          <div class="border-t pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-red-600 mb-1">Suara Tidak Sah / Rusak</label>
+              <input type="number" id="inputTidakSah" min="0" value="0" class="w-full bg-red-50/50 border border-red-200 rounded-xl px-3 py-2.5 text-sm font-bold text-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">Foto Lembar Plano / C1</label>
+              <input type="file" id="inputFoto" accept="image/*" capture="environment" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-tni-primary file:text-white hover:file:bg-tni-dark cursor-pointer border border-slate-300 rounded-xl bg-slate-50">
+            </div>
+          </div>
+
+          <div class="bg-amber-50 border border-amber-300 p-4 rounded-xl">
+            <label class="block text-xs font-bold uppercase tracking-wider text-amber-900 mb-1"><i class="fa-solid fa-lock mr-1"></i> PIN Keamanan Koramil</label>
+            <input type="password" id="inputPinForm" class="w-full bg-white border border-amber-400 rounded-xl px-3 py-2 text-sm font-bold text-center tracking-widest focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="Masukkan 4-Digit PIN" required>
+            <p class="text-[11px] text-amber-700 mt-1 text-center">PIN default Posko: <strong class="font-mono">2026</strong></p>
+          </div>
+
+          <button type="submit" id="btnKirim" class="w-full bg-tni-primary hover:bg-tni-dark text-white font-bold py-3 px-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> KIRIM LAPORAN SUARA TPS
+          </button>
+        </form>
+        <div id="formAlert" class="mt-4"></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: DASHBOARD POSKO LIVE -->
+    <section id="tab-content-dashboard" class="hidden space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-square-poll-horizontal"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total TPS Masuk</div>
+            <div id="statTotalTps" class="text-2xl font-extrabold text-slate-800">0 / 45</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Suara Sah</div>
+            <div id="statTotalSuaraSah" class="text-2xl font-extrabold text-slate-800">0</div>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">
+            <i class="fa-solid fa-map-location-dot"></i>
+          </div>
+          <div>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Desa Selesai Lapor</div>
+            <div id="statDesaLengkap" class="text-2xl font-extrabold text-slate-800">0 / 11</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter & Grafik Per Desa -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b">
+          <div>
+            <h3 class="font-extrabold text-base text-slate-800">Grafik Perolehan Suara Sementata</h3>
+            <p class="text-xs text-slate-500">Pilih desa untuk memantau perolehan suara calon secara detail.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="filterDesaGrafik" onchange="renderDashboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+            </select>
+            <button onclick="muatDataServer()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold transition">
+              <i class="fa-solid fa-rotate"></i> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <div class="lg:col-span-2 h-[300px]">
+            <canvas id="chartSuaraDesa"></canvas>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-600 border-b pb-2">Detail Perolehan Desa</h4>
+            <div id="tabelRingkasanDesaHTML" class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+              <!-- Render Dinamis -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log Laporan Masuk Live -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-extrabold text-base text-slate-800"><i class="fa-solid fa-satellite-dish text-emerald-600 mr-2"></i> Log Masuk Real-Time Dari TPS</h3>
+          <button onclick="salinFormatLaporanWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+            <i class="fa-brands fa-whatsapp"></i> Salin Rekap WA
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-600 uppercase font-bold">
+              <tr>
+                <th class="p-3 rounded-l-lg">Waktu</th>
+                <th class="p-3">Desa / TPS</th>
+                <th class="p-3">Petugas Pelapor</th>
+                <th class="p-3 text-right">Suara Sah</th>
+                <th class="p-3 text-center rounded-r-lg">Bukti Foto</th>
+              </tr>
+            </thead>
+            <tbody id="tabelLogMasuk" class="divide-y divide-slate-100 font-medium">
+              <tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada laporan TPS masuk.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: DATA BABINSA & PERSONIL -->
+    <section id="tab-content-babinsa" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="font-extrabold text-base sm:text-lg text-slate-800">Nominatif Personil Koramil 01/Purwodadi</h3>
+            <p class="text-xs text-slate-500">Daftar lengkap Danramil, Batuud, Babinsa Desa/Kelurahan, dan Anggota Staf.</p>
+          </div>
+          <span class="bg-emerald-100 text-emerald-800 font-bold text-xs px-3 py-1 rounded-full">24 Personil</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-tni-primary text-white font-bold">
+              <tr>
+                <th class="p-3 rounded-l-lg">No</th>
+                <th class="p-3">Nama Lengkap</th>
+                <th class="p-3">Pangkat / NRP</th>
+                <th class="p-3">Jabatan / Wilayah</th>
+                <th class="p-3 text-center rounded-r-lg">Kontak WA</th>
+              </tr>
+            </thead>
+            <tbody id="tabelNominatifPersonil" class="divide-y divide-slate-100 font-medium">
+              <!-- Render Dinamis -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Ubah PIN Koramil -->
+  <div id="modalPin" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="font-extrabold text-base text-slate-800">Ubah PIN Keamanan Koramil</h3>
+        <button onclick="tutupModalPin()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 mb-1">Masukkan PIN Baru (4 Digit)</label>
+        <input type="password" id="inputPinBaru" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-center text-lg font-bold tracking-widest focus:ring-2 focus:ring-tni-primary focus:outline-none" placeholder="2026" maxlength="6">
+      </div>
+      <button onclick="simpanPinBaru()" class="w-full bg-tni-primary text-white font-bold py-2.5 rounded-xl text-xs uppercase tracking-wider">Simpan PIN Baru</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t py-4 text-center text-xs text-slate-500 mt-auto">
+    <p class="font-bold text-tni-primary">POSKO QUICK COUNT PILKADES 2026 &bull; KORAMIL 01/PURWODADI</p>
+    <p class="text-[11px] text-slate-400 mt-0.5">Sistem Pengamanan Data Real-Time Terintegrasi</p>
+  </footer>
+
+  <!-- Firebase SDK & Script Utama -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, setDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Inisialisasi Firebase aman dari environment
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'koramil01-purwodadi-quickcount-2026';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+      apiKey: "AIzaSyDummyKeyForLocalTestingFallback",
+      authDomain: "local-quickcount.firebaseapp.com",
+      projectId: "local-quickcount"
+    };
+
+    let db, auth, currentUser;
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      auth = getAuth(app);
+      
+      const initAuth = async () => {
+        try {
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            await signInAnonymously(auth);
+          }
+          currentUser = auth.currentUser;
+          console.log("Autentikasi Berhasil:", currentUser?.uid);
+          mulaiDengarkanDatabase();
+        } catch (e) {
+          console.warn("Auth Fallback Mode Aktif:", e);
+        }
+      };
+      initAuth();
+    } catch (e) {
+      console.warn("Mode Offline / Local Standalone Aktif");
+    }
+
+    // Data Wilayah & Bakal Calon 11 Desa Koramil 01/Purwodadi
+    const dataWilayah = {
+      "Desa Nambuhan": ["Ego Rendi Saputro, S.T.", "Siswati", "M. Abdul Wachid"],
+      "Desa Cingkrong": ["Sugeng Riyanto, S.H.", "Titania Sukma Widiyanti, S.K.M."],
+      "Desa Warukaranganyar": ["Harto", "Susilo", "Sriwahyuni", "Sutomo, S.H."],
+      "Desa Putat": ["Ngadiyo, S.H., M.H.", "Siti Kurniatun", "Gudianto"],
+      "Desa Candisari": ["Hadad Maulana Putra", "Hartoyo", "Mufty Zakiyah"],
+      "Desa Genuksuran": ["Sutresno", "Triyono", "Dardi", "Purwoto"],
+      "Desa Kedungrejo": ["Ali Mahmudi", "Miftahul Huda, S.Ag."],
+      "Desa Kandangan": ["Nurhidayat Aji Utomo, S.H.", "Yahmo", "Nurtanggono Pamungkas, S.H., M.H."],
+      "Desa Ngraji": ["Hardi", "Suyamto", "Sukandar", "Mutohar", "Huda Nur Sito", "Muh Ali Muklisin", "Yahmo", "Sigit Purnomo", "Ahmad Asrofi", "Arif Nurhidayat", "Edi Wibowo", "M. Barori", "Puji Hartini"],
+      "Desa Karanganyar": ["Sudarto", "Lisa Rifana, S.E.", "Siti Patimah", "Maryati"],
+      "Desa Nglobar": ["Budiyanto", "Satria Putra Wicaksana", "Riswati", "Mugiono"]
+    };
+
+    // Nominatif 24 Personil Koramil 01/Purwodadi
+    const dataPersonil = [
+      { no: 1, nama: "Miftachul Hudda", pangkat: "Kapten Inf / 219701321270776", jabatan: "Danramil 01/Purwodadi", hp: "081328286015" },
+      { no: 2, nama: "Budi Siswoyo", pangkat: "Peltu / 21970071100478", jabatan: "Batuud", hp: "085291523756" },
+      { no: 3, nama: "Agus Waluyo", pangkat: "Pelda / 31950453350475", jabatan: "Babinsa Kel. Purwodadi", hp: "081225604466" },
+      { no: 4, nama: "Ngadimin", pangkat: "Pelda / 3930198800473", jabatan: "Babinsa Ds. Putat", hp: "082324907411" },
+      { no: 5, nama: "Ajar Romali", pangkat: "Serma / 31970511331075", jabatan: "Babinsa Kel. Kalongan", hp: "082131747976" },
+      { no: 6, nama: "Suwoto", pangkat: "Serka / 31000560960880", jabatan: "Babinsa Ds. Karanganyar", hp: "085228778911" },
+      { no: 7, nama: "Endra Bangsawan", pangkat: "Koptu / 31100108440591", jabatan: "Babinsa Ds. Nambuhan", hp: "085234531772" },
+      { no: 8, nama: "Muljono", pangkat: "Serka / 31020610860183", jabatan: "Babinsa Ds. Kedungrejo", hp: "081325917720" },
+      { no: 9, nama: "Sunarto", pangkat: "Serka / 31020142180281", jabatan: "Babinsa Ds. Pulorejo", hp: "081321850299" },
+      { no: 10, nama: "Muh Nor Dhuka", pangkat: "Sertu / 31040872041084", jabatan: "Babinsa Ds. Genuksuran", hp: "085244458796" },
+      { no: 11, nama: "Susanto", pangkat: "Sertu / 31050181890885", jabatan: "Babinsa Ds. Ngembak", hp: "081390816512" },
+      { no: 12, nama: "Haryono", pangkat: "Sertu / 31010153800780", jabatan: "Babinsa Ds. Ngraji", hp: "082134394541" },
+      { no: 13, nama: "Slamet", pangkat: "Sertu / 31020409240480", jabatan: "Babinsa Ds. Kandangan", hp: "081325770180" },
+      { no: 14, nama: "Lilik Handoyo", pangkat: "Serda / 31071319340587", jabatan: "Babinsa Ds. Candisari", hp: "081289608358" },
+      { no: 15, nama: "Arisa Gesang Mulyana", pangkat: "Serda / 31110079711289", jabatan: "Babinsa Kel. Purwodadi", hp: "081327944300" },
+      { no: 16, nama: "Muklisin", pangkat: "Serda / 31130366710292", jabatan: "Babinsa Ds. Warukaranganyar", hp: "081248448414" },
+      { no: 17, nama: "Harnanto", pangkat: "Serda / 31080110360189", jabatan: "Babinsa Ds. Nglobar", hp: "081217911770" },
+      { no: 18, nama: "Dian Nur Diansyah", pangkat: "Serda / 31120466141091", jabatan: "Babinsa Kel. Kuripan", hp: "082131803633" },
+      { no: 19, nama: "Muh Zamroni", pangkat: "Serda / 31081895840886", jabatan: "Babinsa Kel. Danyang", hp: "085290977153" },
+      { no: 20, nama: "Siswanto", pangkat: "Serda / 31090114980387", jabatan: "Babinsa Desa Cingkrong", hp: "082114007101" },
+      { no: 21, nama: "Adi Widaryono", pangkat: "Serda / 31120119980892", jabatan: "Personil Koramil", hp: "082136380806" },
+      { no: 22, nama: "Adi Susanto", pangkat: "Koptu / 31080064320887", jabatan: "Personil Koramil", hp: "081350007985" },
+      { no: 23, nama: "Achmad Jaelani", pangkat: "Kopda / 31120654400991", jabatan: "TayanRad Ramil", hp: "082358992015" },
+      { no: 24, nama: "Indri Lestari", pangkat: "PNS / 198302242002122003", jabatan: "Turyan Koramil", hp: "082310515557" }
+    ];
+
+    // Pemetaan Babinsa penanggung jawab per desa Pilkades Gel. I
+    const mapBabinsaDesa = {
+      "Desa Nambuhan": "Koptu Endra Bangsawan",
+      "Desa Cingkrong": "Serda Siswanto",
+      "Desa Warukaranganyar": "Serda Muklisin",
+      "Desa Putat": "Pelda Ngadimin",
+      "Desa Candisari": "Serda Lilik Handoyo",
+      "Desa Genuksuran": "Sertu Muh Nor Dhuka",
+      "Desa Kedungrejo": "Serka Muljono",
+      "Desa Kandangan": "Sertu Slamet",
+      "Desa Ngraji": "Sertu Haryono",
+      "Desa Karanganyar": "Serka Suwoto",
+      "Desa Nglobar": "Serda Harnanto"
+    };
+
+    let koramilPin = "2026";
+    let dataLaporanServer = [];
+    let chartInstance = null;
+
+    // Inisialisasi Tampilan Awal
+    window.onload = function() {
+      const selDesa = document.getElementById('inputDesa');
+      const selFilter = document.getElementById('filterDesaGrafik');
+      
+      selDesa.innerHTML = '<option value="">-- Pilih Desa --</option>';
+      selFilter.innerHTML = '';
+
+      Object.keys(dataWilayah).forEach(desa => {
+        selDesa.innerHTML += `<option value="${desa}">${desa}</option>`;
+        selFilter.innerHTML += `<option value="${desa}">${desa}</option>`;
+      });
+
+      // Isi dropdown pilihan petugas babinsa
+      const selPetugas = document.getElementById('inputPetugas');
+      selPetugas.innerHTML = '<option value="">-- Pilih Petugas / Babinsa --</option>';
+      dataPersonil.forEach(p => {
+        selPetugas.innerHTML += `<option value="${p.nama} (${p.pangkat})">${p.nama} — ${p.pangkat} (${p.jabatan})</option>`;
+      });
+
+      renderTabelNominatif();
+      muatDataServer();
+    };
+
+    function pilihDesaUpdateBabinsa() {
+      const desa = document.getElementById('inputDesa').value;
+      const container = document.getElementById('containerCalonInput');
+      const selPetugas = document.getElementById('inputPetugas');
+
+      if (!desa || !dataWilayah[desa]) {
+        container.innerHTML = '<div class="text-xs text-slate-400 italic">Pilih desa terlebih dahulu untuk menampilkan daftar bakal calon.</div>';
+        return;
+      }
+
+      // Otomatis pilih babinsa penanggung jawab jika ada di peta
+      const babinsaNama = mapBabinsaDesa[desa];
+      if (babinsaNama) {
+        for (let i = 0; i < selPetugas.options.length; i++) {
+          if (selPetugas.options[i].text.includes(babinsaNama)) {
+            selPetugas.selectedIndex = i;
+            break;
+          }
+        }
+      }
+
+      let html = '';
+      dataWilayah[desa].forEach((namaCalon, idx) => {
+        html += `
+          <div class="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+            <div class="text-xs font-semibold text-slate-700">
+              <span class="bg-tni-primary text-white px-2 py-0.5 rounded-md font-bold mr-2">0${idx + 1}</span>
+              ${namaCalon}
+            </div>
+            <input type="number" min="0" value="0" class="suara-calon-input w-24 bg-white border border-slate-300 rounded-lg px-2 py-1 text-sm font-bold text-end focus:ring-2 focus:ring-tni-primary focus:outline-none" required>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function renderTabelNominatif() {
+      const tbody = document.getElementById('tabelNominatifPersonil');
+      tbody.innerHTML = dataPersonil.map(p => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-3 font-bold">${p.no}</td>
+          <td class="p-3 font-semibold text-slate-800">${p.nama}</td>
+          <td class="p-3 text-slate-600">${p.pangkat}</td>
+          <td class="p-3 text-slate-700 font-medium">${p.jabatan}</td>
+          <td class="p-3 text-center">
+            <a href="https://wa.me/${p.hp.startsWith('0') ? '62' + p.hp.slice(1) : p.hp}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg text-xs font-bold inline-flex items-center gap-1">
+              <i class="fa-brands fa-whatsapp"></i> Chat
+            </a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function pindahTab(tab) {
+      ['input', 'dashboard', 'babinsa'].forEach(t => {
+        document.getElementById(`tab-content-${t}`).classList.add('hidden');
+        document.getElementById(`nav-${t}`).classList.remove('border-tni-primary', 'text-tni-primary');
+        document.getElementById(`nav-${t}`).classList.add('border-transparent', 'text-slate-500');
+      });
+      document.getElementById(`tab-content-${tab}`).classList.remove('hidden');
+      document.getElementById(`nav-${tab}`).classList.add('border-tni-primary', 'text-tni-primary');
+      document.getElementById(`nav-${tab}`).classList.remove('border-transparent', 'text-slate-500');
+      if(tab === 'dashboard') renderDashboard();
+    }
+
+    // Fungsi Sinkronisasi Server Firebase Firestore
+    function mulaiDengarkanDatabase() {
+      if (!db) return;
+      const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'laporan_suara_tps');
+      onSnapshot(colRef, (snapshot) => {
+        dataLaporanServer = [];
+        snapshot.forEach(docSnap => {
+          dataLaporanServer.push(docSnap.data());
+        });
+        // Urutkan berdasarkan waktu terbaru
+        dataLaporanServer.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        renderDashboard();
+        renderLogMasuk();
+      }, (error) => {
+        console.warn("Error mendengarkan database live:", error);
+      });
+    }
+
+    async function kirimLaporanSuara(e) {
+      e.preventDefault();
+      const pinInput = document.getElementById('inputPinForm').value;
+      if (pinInput !== koramilPin) {
+        alert("PIN Keamanan Koramil Salah! Hubungi operator Posko.");
+        return;
+      }
+
+      const desa = document.getElementById('inputDesa').value;
+      const tps = document.getElementById('inputTps').value;
+      const petugas = document.getElementById('inputPetugas').value;
+      const tidakSah = Number(document.getElementById('inputTidakSah').value || 0);
+
+      const inputSuaraElements = document.querySelectorAll('.suara-calon-input');
+      const rincianSuara = Array.from(inputSuaraElements).map(el => Number(el.value || 0));
+      const totalSah = rincianSuara.reduce((a, b) => a + b, 0);
+
+      const fileInput = document.getElementById('inputFoto');
+      let fotoUrl = "https://placehold.co/600x400/2C3E26/FFFFFF?text=Bukti+Plano+TPS+" + tps;
+
+      // Cek duplikasi TPS lokal/server
+      const docId = `${desa.replace(/\s+/g, '_')}_TPS_${tps}`;
+      const sudahAda = dataLaporanServer.some(item => item.id === docId);
+      if (sudahAda) {
+        alert(`GAGAL: Laporan untuk ${desa} TPS ${tps} sudah pernah masuk ke server!`);
+        return;
+      }
+
+      const payload = {
+        id: docId,
+        timestamp: new Date().toISOString(),
+        desa: desa,
+        tps: tps,
+        petugas: petugas,
+        rincianSuara: rincianSuara,
+        tidakSah: tidakSah,
+        totalSah: totalSah,
+        fotoUrl: fotoUrl
+      };
+
+      const btn = document.getElementById('btnKirim');
+      btn.disabled = true;
+      btn.innerText = "MENGIRIM KE SERVER...";
+
+      try {
+        if (db && auth?.currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'laporan_suara_tps', docId);
+          await setDoc(docRef, payload);
+        } else {
+          // Fallback local array jika offline
+          dataLaporanServer.unshift(payload);
+        }
+
+        document.getElementById('formAlert').innerHTML = `<div class="bg-emerald-50 border border-emerald-300 text-emerald-800 p-3 rounded-xl text-xs font-bold">Laporan ${desa} TPS ${tps} berhasil dikirim ke server!</div>`;
+        document.getElementById('formSuara').reset();
+        document.getElementById('containerCalonInput').innerHTML = '<div class="text-xs text-slate-400 italic">Pilih desa terlebih dahulu untuk menampilkan daftar bakal calon.</div>';
+        muatDataServer();
+        setTimeout(() => pindahTab('dashboard'), 1500);
+      } catch (err) {
+        alert("Gagal mengirim data ke server: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> KIRIM LAPORAN SUARA TPS';
+      }
+    }
+
+    async function muatDataServer() {
+      if (!db) return;
+      try {
+        const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'laporan_suara_tps');
+        const snap = await getDocs(colRef);
+        dataLaporanServer = [];
+        snap.forEach(d => dataLaporanServer.push(d.data()));
+        dataLaporanServer.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        renderDashboard();
+        renderLogMasuk();
+      } catch(e) {
+        console.warn("Gagal memuat ulang data server", e);
+      }
+    }
+
+    function renderDashboard() {
+      const desaDipilih = document.getElementById('filterDesaGrafik').value || Object.keys(dataWilayah)[0];
+      const calons = dataWilayah[desaDipilih] || [];
+
+      // Hitung statistik global
+      const totalTpsMasuk = dataLaporanServer.length;
+      const totalSuaraSahGlobal = dataLaporanServer.reduce((acc, curr) => acc + (curr.totalSah || 0), 0);
+      const desaUnik = [...new Set(dataLaporanServer.map(i => i.desa))];
+
+      document.getElementById('statTotalTps').innerText = `${totalTpsMasuk} TPS`;
+      document.getElementById('statTotalSuaraSah').innerText = totalSuaraSahGlobal.toLocaleString('id-ID');
+      document.getElementById('statDesaLengkap').innerText = `${desaUnik.length} / 11`;
+
+      // Agregasi suara per calon untuk desa terpilih
+      const suaraPerCalon = new Array(calons.length).fill(0);
+      let totalSahDesa = 0;
+      let tpsMasukDesa = 0;
+
+      dataLaporanServer.filter(item => item.desa === desaDipilih).forEach(item => {
+        tpsMasukDesa++;
+        totalSahDesa += (item.totalSah || 0);
+        item.rincianSuara.forEach((val, idx) => {
+          if (idx < suaraPerCalon.length) suaraPerCalon[idx] += val;
+        });
+      });
+
+      // Render tabel ringkasan samping grafik
+      let htmlTabel = '';
+      calons.forEach((nama, idx) => {
+        const suara = suaraPerCalon[idx];
+        const persen = totalSahDesa > 0 ? ((suara / totalSahDesa) * 100).toFixed(1) : "0.0";
+        htmlTabel += `
+          <div class="flex justify-between items-center text-xs bg-white p-2.5 rounded-lg border border-slate-200">
+            <div>
+              <span class="font-bold text-tni-primary mr-1">0${idx+1}.</span> ${nama}
+            </div>
+            <div class="text-end">
+              <span class="font-extrabold text-slate-800">${suara.toLocaleString('id-ID')}</span>
+              <span class="text-slate-400 text-[10px] ml-1">(${persen}%)</span>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('tabelRingkasanDesaHTML').innerHTML = htmlTabel || '<div class="text-xs text-slate-400 italic text-center py-4">Belum ada TPS lapor di desa ini.</div>';
+
+      // Render Grafik Chart.js
+      const ctx = document.getElementById('chartSuaraDesa').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: calons.map((c, i) => `0${i+1}. ${c}`),
+          datasets: [{
+            label: 'Perolehan Suara',
+            data: suaraPerCalon,
+            backgroundColor: '#2C3E26',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+    }
+
+    function renderLogMasuk() {
+      const tbody = document.getElementById('tabelLogMasuk');
+      if (dataLaporanServer.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada laporan TPS masuk.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = dataLaporanServer.slice(0, 15).map(item => {
+        const waktuStr = new Date(item.timestamp).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        return `
+          <tr class="hover:bg-slate-50">
+            <td class="p-3 text-slate-500">${waktuStr} WIB</td>
+            <td class="p-3 font-bold text-slate-800">${item.desa} <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px] ml-1">TPS ${item.tps}</span></td>
+            <td class="p-3 text-slate-600">${item.petugas}</td>
+            <td class="p-3 text-end font-extrabold text-emerald-700">${(item.totalSah || 0).toLocaleString('id-ID')}</td>
+            <td class="p-3 text-center">
+              <a href="${item.fotoUrl}" target="_blank" class="text-blue-600 hover:underline font-bold text-xs"><i class="fa-solid fa-image mr-1"></i> Foto</a>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function salinFormatLaporanWA() {
+      let text = `📊 *REKAP QUICK COUNT PILKADES 2026*\n🏛️ *KORAMIL 01/PURWODADI*\n\n`;
+      text += `Total TPS Masuk: ${dataLaporanServer.length} TPS\n`;
+      text += `Total Suara Sah: ${dataLaporanServer.reduce((a,b)=>a+(b.totalSah||0),0).toLocaleString('id-ID')}\n\n`;
+      text += `*Rincian Per Desa:*\n`;
+      
+      Object.keys(dataWilayah).forEach(desa => {
+        const laporanDesa = dataLaporanServer.filter(i => i.desa === desa);
+        const tpsCount = laporanDesa.length;
+        const totalSuaraDesa = laporanDesa.reduce((a,b)=>a+(b.totalSah||0),0);
+        text += `- *${desa}* (${tpsCount} TPS lapor): ${totalSuaraDesa.toLocaleString('id-ID')} suara\n`;
+      });
+
+      text += `\n_Laporan Real-Time Posko Koramil 01/Purwodadi_`;
+      
+      const dummy = document.createElement('textarea');
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand('copy');
+      document.body.removeChild(dummy);
+      alert("Format rekapitulasi berhasil disalin ke clipboard! Siap ditempel ke WhatsApp.");
+    }
+
+    function bagikanLink() {
+      const url = window.location.href;
+      const pesan = `⚠️ *INSTRUKSI KOMANDO & POSKO QUICK COUNT*\nPilakdes Serentak Gel. I Tahun 2026 Koramil 01/Purwodadi.\n\nPara Babinsa silakan akses link berikut untuk melaporkan hasil hitung suara TPS:\n${url}\n\n🔑 PIN Koramil: *${koramilPin}*`;
+      if(navigator.share) {
+        navigator.share({ title: 'Quick Count Pilkades 2026', text: pesan, url: url }).catch(() => {});
+      } else {
+        const dummy = document.createElement('textarea');
+        document.body.appendChild(dummy);
+        dummy.value = pesan;
+        dummy.select();
+        document.execCommand('copy');
+        document.body.removeChild(dummy);
+        alert("Link dan format instruksi berhasil disalin! Silakan bagikan ke grup WhatsApp anggota.");
+      }
+    }
+
+    function bukaModalPin() { document.getElementById('modalPin').classList.remove('hidden'); }
+    function tutupModalPin() { document.getElementById('modalPin').classList.add('hidden'); }
+    function simpanPinBaru() {
+      const p = document.getElementById('inputPinBaru').value.trim();
+      if(p.length < 3) { alert("PIN minimal 4 karakter."); return; }
+      koramilPin = p;
+      tutupModalPin();
+      alert(`PIN Koramil berhasil diperbarui menjadi: ${koramilPin}`);
+    }
+
+    window.pindahTab = pindahTab;
+    window.pilihDesaUpdateBabinsa = pilihDesaUpdateBabinsa;
+    window.kirimLaporanSuara = kirimLaporanSuara;
+    window.muatDataServer = muatDataServer;
+    window.renderDashboard = renderDashboard;
+    window.salinFormatLaporanWA = salinFormatLaporanWA;
+    window.bagikanLink = bagikanLink;
+    window.bukaModalPin = bukaModalPin;
+    window.tutupModalPin = tutupModalPin;
+    window.simpanPinBaru = simpanPinBaru;
+  </script>
+</body>
+</html>
